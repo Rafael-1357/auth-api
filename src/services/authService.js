@@ -1,24 +1,19 @@
 const db = require('../db');
-const jwt = require('jsonwebtoken');
-require('dotenv').config({ path: '.env' });
+const jwtService = require('./jwtService');
 
-async function verifyUser(username, password) {
+async function verifyUser(username) {
   return new Promise((accept, reject) => {
-    db.query(() => {
+    db.query('SELECT username, password, role FROM users WHERE username = ?', username, (err, results) => {
       if (err) { reject(err); return; }
       accept(results)
     })
   });
 };
 
-function generateAccessToken(username) {
-  return jwt.sign(username, process.env.SECRET_KEY, { expiresIn: '1800s' });
-}
-
 module.exports = {
-  auth: async (req, res) => {
-    await verifyUser({username: req.body.username, password: req.body.password})
-    const token = generateAccessToken({ username: req.body.username });
-    return token;
+  auth: async (req) => {
+    const user = await verifyUser(req.body.username, req.body.password)
+    const token = jwtService.createToken()
+    return user;
   }
 }
