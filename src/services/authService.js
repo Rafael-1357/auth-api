@@ -13,7 +13,7 @@ async function verifyUser(username) {
 module.exports = {
   auth: async (req) => {
     let data = {err: '', result: ''}
-    const consultUser = await verifyUser(req.body.username, req.body.password)
+    const consultUser = await verifyUser(req.body.username)
     consultUser[0]
       ? consultUser[0].username === req.body.username && consultUser[0].password === req.body.password
         ? data.result = ( await jwtService.createToken(req))
